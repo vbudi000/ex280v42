@@ -53,8 +53,6 @@ To become a Red Hat Certified Specialist in OpenShift Administration, you should
 
 ## Manage OpenShift Container Platform
 
-This topic covers around 15%.
-
 Executing troubleshooting commands:
 
 - Getting node informations:
@@ -104,8 +102,6 @@ oc cp <pod>:/file file
 
 ## Manage Users and Policies
 
-This topic covers around 15%.
-
 Removing the default kubeadmin:
 ```
 oc delete secret kubeadmin -n kube-system
@@ -145,8 +141,6 @@ oc get identity
 ```
 
 ## Manage Resource Access
-
-This topic covers around 15%.
 
 Defining and Applying Permissions Using RBAC  
 ```
@@ -192,8 +186,6 @@ oc adm policy add-scc-to-user anyuid -z default
 
 ## Configure Networking Components
 
-This topic covers around 15%.
-
 Service types: ClusterIP, NodePort, LoadBalancer, ExternalService
 ```
 oc describe dns.operator/default
@@ -227,7 +219,7 @@ oc create route edge \
 
 ## Configure Pod Scheduling
 
-This topic covers around 30%.
+I think this topic has the most weight over all the topics in this exam.
 
 Controlling pod scheduling behavior (factors that can affect on which nodes a pod can or cannot be run)  
 ```
@@ -270,8 +262,6 @@ oc get hpa
 ```
 
 ## Configure Cluster Scaling
-
-This topic covers around 10% questions
 
 Manually Scaling an OpenShift Cluster  
 ```
