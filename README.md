@@ -55,39 +55,66 @@ To become a Red Hat Certified Specialist in OpenShift Administration, you should
 
 This topic covers around 15%.
 
-Executing Troubleshooting Commands
+Executing troubleshooting commands:
 
+- Getting node informations:
 ```
 oc get node
-oc adm top nodes
 oc describe node <nodename>
-oc get clusteroperators
+```
+
+- Getting busiest nodes
+```
+oc adm top nodes
+```
+
+- Getting `journalctl` logs from a node
+```
 oc adm node-logs -u kubelet my-node-name
-oc debug node/mynode
-oc logs <pod> [-c <container>] [-f]
-oc debug deployment/<deplname> [--as-root]
-oc rsh <podname>
-oc cp file <pod>:/file
-oc port-forward <pod> <localport>:<remoteport>
+```
+
+- Running a remote shell for a node
+```
+oc debug node/<nodename>
+```
+
+- Work with cluster installers
+```
+oc get clusteroperators
 oc get clusterversion -o yaml
 ```
 
-## Manage Users, Policies and Resource Access
+- Getting a pod logs
+```
+oc logs <pod> [-c <container>] [-f]
+```
 
-This topic covers around 30%.
+- Debugging a deployment or a pod
+```
+oc debug deployment/<deplname> [--as-root]
+oc rsh <podname>
+oc port-forward <pod> <localport>:<remoteport>
+```
 
-Configuring Identity Providers
+- Getting a file from a pod
+```
+oc cp file <pod>:/file
+oc cp <pod>:/file file
+```
+
+## Manage Users and Policies
+
+This topic covers around 15%.
 
 Removing the default kubeadmin:
 ```
 oc delete secret kubeadmin -n kube-system
 ```
 
-The HTPASSWD file:
-
 Working with htpasswd
-Create: `htpasswd -c -B -b /tmp/htpasswd student redhat123`
-Update: `htpasswd -b /tmp/htpasswd student redhat1234`
+
+- Create: `htpasswd -c -B -b /tmp/htpasswd student redhat123`
+- Update: `htpasswd -b /tmp/htpasswd student redhat1234`
 
 Create a secret:
 ```
@@ -111,17 +138,15 @@ spec:
         name: htpasswd-secret
 ```
 
-Create a cluster admin
-
-```
-oc adm policy add-cluster-role-to-user cluster-admin student
-```
-
 Getting users and identities
 ```
 oc get users
 oc get identity
 ```
+
+## Manage Resource Access
+
+This topic covers around 15%.
 
 Defining and Applying Permissions Using RBAC  
 ```
@@ -132,13 +157,15 @@ oc adm policy add-role-to-user basic-user dev -n wordpress
 ```
 
 Default roles
--	admin Users with this role can manage all project resources, including granting access to other users to the project.
--	basic-user Users with this role have read access to the project.
--	cluster-admin Users with this role have superuser access to the cluster resources. These users can perform any action on the cluster, and have full control of all projects.
--	cluster-status Users with this role can get cluster status information.
--	edit Users with this role can create, change, and delete common application resources from the project, such as services and deployment configurations. These users cannot act on management resources such as limit ranges and quotas, and cannot manage access permissions to the project.
--	self-provisioner Users with this role can create new projects. This is a cluster role, not a project role.
--	view Users with this role can view project resources, but cannot modify project resources.
+-	**basic-user** Users with this role have read access to the project.
+-	**cluster-admin** Users with this role have superuser access to the cluster resources. These users can perform any action on the cluster, and have full control of all projects.
+-	**cluster-status** Users with this role can get cluster status information.
+-	**self-provisioner** Users with this role can create new projects.
+
+Default roles that can be added or removed from a project level:
+-	**admin** Users with this role can manage all project resources, including granting access to other users to the project.
+-	**edit** Users with this role can create, change, and delete common application resources from the project, such as services and deployment configurations. These users cannot act on management resources such as limit ranges and quotas, and cannot manage access permissions to the project.
+-	**view** Users with this role can view project resources, but cannot modify project resources.
 
 System users: system:admin, system:openshift-registry, and system:node:node1.example.com.
 
@@ -157,7 +184,7 @@ oc set volume dc/demo \
 > --mount-path=/app-secrets
 ```
 
-Controlling Application Permissions with Security Context Constraints (SCCs)  
+Controlling Application Permissions with Security Context Constraints (SCCs) (anyuid, privileged etc)  
 ```
 oc adm policy add-scc-to-user anyuid -z default
 ```
@@ -185,12 +212,12 @@ oc get ingress
 ```
 
 Certificate generation:
-
 ```
 openssl genrsa -out file.key
 openssl req -new -subj <subject> -out file.req -key file.key
 openssl x509 -req -in file.req -out file.crt -signkey file.key
 ```
+
 Secure route (edge/passthru):
 ```
 oc create route edge \
@@ -202,7 +229,7 @@ oc create route edge \
 
 This topic covers around 30%.
 
-Controlling Pod Scheduling Behavior  
+Controlling pod scheduling behavior (factors that can affect on which nodes a pod can or cannot be run)  
 ```
 oc label node node1.us-west-1.compute.internal env[-|=dev] [--overwrite]
 oc get node node2.us-west-1.compute.internal --show-labels
@@ -213,7 +240,8 @@ oc adm new-project demo --node-selector "tier=1"
 oc annotate namespace demo \
 > openshift.io/node-selector="tier=2" --overwrite
 ```
-Limiting Resource Usage  
+
+Limiting resource usage (factors that can affect the resources that a pod is allowed use or run)  
 ```
 oc adm top nodes -l node-role.kubernetes.io/worker
 oc set resources deployment hello-world-nginx \
@@ -224,6 +252,7 @@ oc describe limitrange dev-limits
 ```
 
 A violation of LimitRange constraints prevents pod creation, and resulting error messages are displayed. A violation of ResourceQuota constraints prevents a pod from being scheduled to any node. The pod might be created but remain in the pending state
+
 ```
 oc create clusterquota user-qa \
 > --project-annotation-selector openshift.io/requester=qa \
@@ -231,7 +260,10 @@ oc create clusterquota user-qa \
 oc create clusterquota env-qa \
 > --project-label-selector environment=qa \
 > --hard pods=10,services=5
+```
+
 Scaling an Application  
+```
 oc scale --replicas 3 deployment/myapp
 oc autoscale dc/hello --min 1 --max 10 --cpu-percent 80
 oc get hpa
